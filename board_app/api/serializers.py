@@ -25,7 +25,7 @@ class BoardSerializer(serializers.ModelSerializer):
         ]
 
     def get_member_count(self, obj):
-        return obj.members.count() + 1
+        return obj.members.count() 
     
     def create(self, validated_data):
         members_data = validated_data.pop('members', [])
