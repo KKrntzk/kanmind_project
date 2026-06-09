@@ -36,9 +36,31 @@ class BoardSerializer(serializers.ModelSerializer):
             
         return board
     
+
+    
 class BoardUserSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='first_name', read_only=True)
 
     class Meta:
         model = User
         fields = ['id', 'email', 'fullname']
+
+
+class BoardDetailSerializer(serializers.ModelSerializer):
+    owner_id = serializers.IntegerField(source='owner.id', read_only=True)
+    members = BoardUserSerializer(many=True, read_only=True)
+    
+    tasks = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Board
+        fields = [
+            'id',
+            'title',
+            'owner_id',
+            'members',
+            'tasks'
+        ]
+
+    def get_tasks(self, obj):
+        return []
