@@ -30,9 +30,12 @@ class BoardSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         members_data = validated_data.pop('members', [])
         board = Board.objects.create(**validated_data)
+        board.members.add(board.owner)
         
         if members_data:
-            board.members.set(members_data)
+            board.members.add(*members_data)
+            
+        return board
             
         return board
     
