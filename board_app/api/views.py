@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
 from board_app.models import Board
-from .serializers import BoardSerializer, BoardDetailSerializer, BoardUserSerializer
+from .serializers import BoardSerializer, BoardDetailSerializer, BoardPATCHSerializer
 from .permissions import IsBoardOwnerOrMember
 
 class BoardListView(generics.ListCreateAPIView):
@@ -21,11 +21,14 @@ class BoardListView(generics.ListCreateAPIView):
 
 
 class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
-
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsBoardOwnerOrMember]
-    serializer_class = BoardDetailSerializer
 
     def get_queryset(self):
         user = self.request.user
         return Board.objects.filter(Q(owner=user) | Q(members=user)).distinct()
+
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return BoardPATCHSerializer
+        return BoardDetailSerializer 

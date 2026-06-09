@@ -52,18 +52,38 @@ class BoardUserSerializer(serializers.ModelSerializer):
 class BoardDetailSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     members = BoardUserSerializer(many=True, read_only=True)
-    
     tasks = serializers.SerializerMethodField()
 
     class Meta:
         model = Board
-        fields = [
-            'id',
-            'title',
-            'owner_id',
-            'members',
-            'tasks'
-        ]
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
 
     def get_tasks(self, obj):
         return []
+    
+class BoardPATCHSerializer(serializers.ModelSerializer):
+    owner_data = BoardUserSerializer(source='owner', read_only=True)
+    members_data = BoardUserSerializer(source='members', many=True, read_only=True)
+    
+    members = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset=User.objects.all(), 
+        write_only=True, 
+        required=False
+    )
+
+    class Meta:
+        model = Board
+        fields = ['id', 'title', 'owner_data', 'members_data', 'members']
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.save()
+
+        if 'members' in validated_data:
+            new_members = validated_data['members']
+            if instance.owner not in new_members:
+                new_members.append(instance.owner)
+            instance.members.set(new_members)
+
+        return instance
