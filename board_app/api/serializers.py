@@ -35,3 +35,10 @@ class BoardSerializer(serializers.ModelSerializer):
             board.members.set(members_data)
             
         return board
+    
+class BoardUserSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='first_name', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
