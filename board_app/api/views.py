@@ -3,8 +3,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
 from board_app.models import Board
-from .serializers import BoardSerializer, BoardDetailSerializer, BoardPATCHSerializer
+from .serializers import BoardSerializer, BoardDetailSerializer, BoardPATCHSerializer, BoardUserSerializer
 from .permissions import IsBoardOwnerOrMember, IsBoardOwnerOnly
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from django.contrib.auth.models import User
 
 class BoardListView(generics.ListCreateAPIView):
 
@@ -37,3 +43,36 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'DELETE':
             return [IsAuthenticated(), IsBoardOwnerOnly()]
         return super().get_permissions()
+    
+
+class EmailCheckView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        email = request.query_params.get('email', None)
+
+        if not email:
+            return Response(
+                {"detail": "This email is missing"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return Response(
+                {"detail": "this is the wrong format"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(email=email)
+            serializer = BoardUserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "email can't be matched to another user"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
