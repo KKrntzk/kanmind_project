@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from board_app.models import Board
+from django.contrib.auth.models import User
 
 class BoardSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     member_count = serializers.SerializerMethodField()
+    members = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), write_only=True, required=False)
     
     ticket_count = serializers.IntegerField(default=0, read_only=True)
     tasks_to_do_count = serializers.IntegerField(default=0, read_only=True)
@@ -14,6 +16,7 @@ class BoardSerializer(serializers.ModelSerializer):
         fields = [
             'id', 
             'title', 
+            'members',
             'member_count', 
             'ticket_count', 
             'tasks_to_do_count', 
@@ -22,4 +25,13 @@ class BoardSerializer(serializers.ModelSerializer):
         ]
 
     def get_member_count(self, obj):
-        return obj.members.count()
+        return obj.members.count() + 1
+    
+    def create(self, validated_data):
+        members_data = validated_data.pop('members', [])
+        board = Board.objects.create(**validated_data)
+        
+        if members_data:
+            board.members.set(members_data)
+            
+        return board
