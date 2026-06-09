@@ -2,9 +2,10 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
 
     fullname = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
@@ -40,3 +41,27 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.token = token.key
 
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+        
+            if not user:
+                raise ValidationError({'non_field_errors':'your email or password is not valid'})
+        
+            if not user.is_active:
+                raise ValidationError({'non_field_errors':'this account is inactive'})
+        
+        else:
+            raise ValidationError({'non_field_errors':'email and password has to be filled out'})
+    
+        data['user'] = user
+        return data
