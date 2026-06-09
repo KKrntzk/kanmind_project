@@ -4,7 +4,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.db.models import Q
 from board_app.models import Board
 from .serializers import BoardSerializer, BoardDetailSerializer, BoardPATCHSerializer
-from .permissions import IsBoardOwnerOrMember
+from .permissions import IsBoardOwnerOrMember, IsBoardOwnerOnly
 
 class BoardListView(generics.ListCreateAPIView):
 
@@ -32,3 +32,8 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PATCH', 'PUT']:
             return BoardPATCHSerializer
         return BoardDetailSerializer 
+    
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            return [IsAuthenticated(), IsBoardOwnerOnly()]
+        return super().get_permissions()
