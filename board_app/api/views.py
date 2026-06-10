@@ -1,16 +1,18 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-from django.db.models import Q
-from board_app.models import Board
-from .serializers import BoardSerializer, BoardDetailSerializer, BoardPATCHSerializer, BoardUserSerializer
-from .permissions import IsBoardOwnerOrMember, IsBoardOwnerOnly
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-from rest_framework import status
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.db.models import Q
+
+from rest_framework import generics, status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from board_app.models import Board
+
+from .permissions import IsBoardOwnerOnly, IsBoardOwnerOrMember
+from .serializers import (BoardDetailSerializer, BoardPATCHSerializer, BoardSerializer, BoardUserSerializer,)
 
 class BoardListView(generics.ListCreateAPIView):
 
