@@ -67,3 +67,57 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+    
+
+class TaskPatchSerializer(serializers.ModelSerializer):
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='assignee',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='reviewer',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
+    assignee = BoardUserSerializer(read_only=True)
+    reviewer = BoardUserSerializer(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = [
+            'id',
+            'title',
+            'description',
+            'status',
+            'priority',
+            'assignee_id',
+            'reviewer_id',
+            'assignee',
+            'reviewer',
+            'due_date'
+        ]
+
+    def validate(self, attrs):
+        task = self.instance
+        board = task.board
+
+        assignee = attrs.get('assignee')
+        if assignee and assignee != board.owner and assignee not in board.members.all():
+            raise serializers.ValidationError({
+                "assignee_id": "User is not a member of this board."
+            })
+
+        reviewer = attrs.get('reviewer')
+        if reviewer and reviewer != board.owner and reviewer not in board.members.all():
+            raise serializers.ValidationError({
+                "reviewer_id": "User is not a member of this board."
+            })
+
+        return attrs
