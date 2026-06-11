@@ -7,9 +7,9 @@ class BoardSerializer(serializers.ModelSerializer):
     member_count = serializers.SerializerMethodField()
     members = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), write_only=True, required=False)
     
-    ticket_count = serializers.IntegerField(default=0, read_only=True)
-    tasks_to_do_count = serializers.IntegerField(default=0, read_only=True)
-    tasks_high_prio_count = serializers.IntegerField(default=0, read_only=True)
+    ticket_count = serializers.SerializerMethodField()
+    tasks_to_do_count = serializers.SerializerMethodField()
+    tasks_high_prio_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Board
@@ -27,6 +27,18 @@ class BoardSerializer(serializers.ModelSerializer):
     def get_member_count(self, obj):
         return obj.members.count() 
     
+    def get_ticket_count(self, obj):
+        from task_app.models import Task
+        return Task.objects.filter(board=obj).count()
+
+    def get_tasks_to_do_count(self, obj):
+        from task_app.models import Task
+        return Task.objects.filter(board=obj, status='to-do').count() 
+
+    def get_tasks_high_prio_count(self, obj):
+        from task_app.models import Task
+        return Task.objects.filter(board=obj, priority='high').count()
+    
     def create(self, validated_data):
         members_data = validated_data.pop('members', [])
         board = Board.objects.create(**validated_data)
@@ -36,11 +48,8 @@ class BoardSerializer(serializers.ModelSerializer):
             board.members.add(*members_data)
             
         return board
-            
-        return board
-    
+                
 
-    
 class BoardUserSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='first_name', read_only=True)
 
@@ -59,8 +68,13 @@ class BoardDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'owner_id', 'members', 'tasks']
 
     def get_tasks(self, obj):
-        return []
+        from task_app.api.serializers import AssignedTaskSerializer
+        from task_app.models import Task
+
+        board_tasks = Task.objects.filter(board=obj)
+        return AssignedTaskSerializer(board_tasks, many=True).data
     
+
 class BoardPATCHSerializer(serializers.ModelSerializer):
     owner_data = BoardUserSerializer(source='owner', read_only=True)
     members_data = BoardUserSerializer(source='members', many=True, read_only=True)
