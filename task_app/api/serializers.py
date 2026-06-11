@@ -70,6 +70,13 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     
 
 class TaskPatchSerializer(serializers.ModelSerializer):
+
+    board = serializers.PrimaryKeyRelatedField(
+        queryset=Board.objects.all(), 
+        write_only=True,
+        required=False
+    )
+
     assignee_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source='assignee', write_only=True, required=False, allow_null=True
     )
@@ -84,6 +91,7 @@ class TaskPatchSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 
+            'board',
             'title', 
             'description', 
             'status', 
