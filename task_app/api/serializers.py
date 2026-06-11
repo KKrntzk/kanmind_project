@@ -98,6 +98,11 @@ class TaskPatchSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         board = self.instance.board
 
+        if 'board' in attrs and attrs.get('board') != board:
+            raise serializers.ValidationError({
+                "board": "Changing the board of an existing task is not allowed."
+            })
+
         if 'assignee' in attrs:
             assignee = attrs.get('assignee')
             if assignee is not None:
