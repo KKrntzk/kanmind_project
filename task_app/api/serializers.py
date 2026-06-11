@@ -83,8 +83,16 @@ class TaskPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 'title', 'description', 'status', 'priority',
-            'assignee_id', 'reviewer_id', 'assignee', 'reviewer', 'due_date'
+            'id', 
+            'title', 
+            'description', 
+            'status', 
+            'priority', 
+            'assignee_id', 
+            'reviewer_id', 
+            'assignee', 
+            'reviewer', 
+            'due_date'
         ]
 
     def validate(self, attrs):
