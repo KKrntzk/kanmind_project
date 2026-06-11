@@ -71,19 +71,10 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
 class TaskPatchSerializer(serializers.ModelSerializer):
     assignee_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='assignee',
-        write_only=True,
-        required=False,
-        allow_null=True
+        queryset=User.objects.all(), source='assignee', write_only=True, required=False, allow_null=True
     )
-
     reviewer_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='reviewer',
-        write_only=True,
-        required=False,
-        allow_null=True
+        queryset=User.objects.all(), source='reviewer', write_only=True, required=False, allow_null=True
     )
 
     assignee = BoardUserSerializer(read_only=True)
@@ -92,32 +83,27 @@ class TaskPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id',
-            'title',
-            'description',
-            'status',
-            'priority',
-            'assignee_id',
-            'reviewer_id',
-            'assignee',
-            'reviewer',
-            'due_date'
+            'id', 'title', 'description', 'status', 'priority',
+            'assignee_id', 'reviewer_id', 'assignee', 'reviewer', 'due_date'
         ]
 
     def validate(self, attrs):
-        task = self.instance
-        board = task.board
+        board = self.instance.board
 
-        assignee = attrs.get('assignee')
-        if assignee and assignee != board.owner and assignee not in board.members.all():
-            raise serializers.ValidationError({
-                "assignee_id": "User is not a member of this board."
-            })
+        if 'assignee' in attrs:
+            assignee = attrs.get('assignee')
+            if assignee is not None:
+                if assignee != board.owner and assignee not in board.members.all():
+                    raise serializers.ValidationError({
+                        "assignee_id": "your assignee is not a member of this board"
+                    })
 
-        reviewer = attrs.get('reviewer')
-        if reviewer and reviewer != board.owner and reviewer not in board.members.all():
-            raise serializers.ValidationError({
-                "reviewer_id": "User is not a member of this board."
-            })
+        if 'reviewer' in attrs:
+            reviewer = attrs.get('reviewer')
+            if reviewer is not None:
+                if reviewer != board.owner and reviewer not in board.members.all():
+                    raise serializers.ValidationError({
+                        "reviewer_id": "your reviewer is not a member of this board"
+                    })
 
         return attrs

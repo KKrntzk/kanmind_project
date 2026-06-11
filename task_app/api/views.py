@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from task_app.models import Task
 
-from .serializers import AssignedTaskSerializer, TaskCreateSerializer
+from .serializers import AssignedTaskSerializer, TaskCreateSerializer, TaskPatchSerializer
 
 class AssignedToMeTaskListView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
@@ -31,3 +31,4 @@ class TaskCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
+
