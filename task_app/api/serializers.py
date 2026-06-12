@@ -135,6 +135,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'created_at', 'author', 'content']
+        extra_kwargs = {
+            'content': {'required': True, 'allow_blank': False}
+        }
 
     def get_author(self, obj):
         fullname = f"{obj.author.first_name} {obj.author.last_name}".strip()
