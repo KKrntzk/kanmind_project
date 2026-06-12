@@ -64,7 +64,7 @@ class TaskCommentListView(generics.ListCreateAPIView):
 
 class CommentDeleteView(generics.DestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    
+
     permission_classes = [IsAuthenticated, IsCommentAuthorOnly]
     serializer_class = CommentSerializer
 
@@ -72,13 +72,9 @@ class CommentDeleteView(generics.DestroyAPIView):
         task_id = self.kwargs.get('task_id')
         comment_id = self.kwargs.get('comment_id')
         
-        # 1. Sicherstellen, dass die Task existiert (sonst 404)
         get_object_or_404(Task, id=task_id)
-        
-        # 2. Sicherstellen, dass der Kommentar existiert UND zu dieser Task gehört (sonst 404)
         comment = get_object_or_404(Comment, id=comment_id, task_id=task_id)
         
-        # 3. Das gefundene Objekt an die Permission-Prüfung übergeben
         self.check_object_permissions(self.request, comment)
         
         return comment
