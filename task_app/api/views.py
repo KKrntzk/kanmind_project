@@ -2,10 +2,10 @@ from rest_framework import generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from task_app.models import Task
+from task_app.models import Task, Comment
 
-from .serializers import AssignedTaskSerializer, TaskCreateSerializer, TaskPatchSerializer
-from .permissions import IsTaskFieldsAllowed
+from .serializers import AssignedTaskSerializer, TaskCreateSerializer, TaskPatchSerializer, CommentSerializer
+from .permissions import IsTaskFieldsAllowed, IsBoardMemberForTaskUrl
 
 class AssignedToMeTaskListView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
@@ -43,3 +43,13 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskPatchSerializer
     lookup_field = 'id'
+
+
+class TaskCommentListView(generics.ListAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsBoardMemberForTaskUrl] 
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        task_id = self.kwargs.get('task_id')
+        return Comment.objects.filter(task_id=task_id)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from task_app.models import Task
+from task_app.models import Task, Comment
 from board_app.api.serializers import BoardUserSerializer
 from board_app.models import Board
 from django.contrib.auth.models import User
@@ -128,3 +128,14 @@ class TaskPatchSerializer(serializers.ModelSerializer):
                     })
 
         return attrs
+    
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'created_at', 'author', 'content']
+
+    def get_author(self, obj):
+        fullname = f"{obj.author.first_name} {obj.author.last_name}".strip()
+        return fullname if fullname else obj.author.username

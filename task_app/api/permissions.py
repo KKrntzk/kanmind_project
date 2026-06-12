@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from board_app.api.permissions import IsBoardOwnerOrMember, IsBoardOwnerOnly
+from django.shortcuts import get_object_or_404
+from task_app.models import Task
 
 class IsTaskFieldsAllowed(IsBoardOwnerOrMember):
 
@@ -25,3 +27,15 @@ class IsTaskFieldsAllowed(IsBoardOwnerOrMember):
             return True
 
         return False
+    
+
+class IsBoardMemberForTaskUrl(BasePermission):
+    message = "Permissions required: You must be a member of the board to access this content."
+
+    def has_permission(self, request, view):
+        task_id = view.kwargs.get('task_id')
+        task = get_object_or_404(Task, id=task_id)    
+        board = task.board
+        board_permission = IsBoardOwnerOrMember()
+        
+        return board_permission.has_object_permission(request, view, board)
