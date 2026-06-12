@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from task_app.models import Task, Comment
 
 from .serializers import AssignedTaskSerializer, TaskCreateSerializer, TaskPatchSerializer, CommentSerializer
-from .permissions import IsTaskFieldsAllowed, IsBoardMemberForTaskUrl
+from .permissions import IsTaskFieldsAllowed, IsBoardMemberForTaskUrl, IsCommentAuthorOnly
 
 class AssignedToMeTaskListView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
@@ -61,3 +61,24 @@ class TaskCommentListView(generics.ListCreateAPIView):
         task = get_object_or_404(Task, id=task_id)
         
         serializer.save(author=self.request.user, task=task)
+
+class CommentDeleteView(generics.DestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    
+    permission_classes = [IsAuthenticated, IsCommentAuthorOnly]
+    serializer_class = CommentSerializer
+
+    def get_object(self):
+        task_id = self.kwargs.get('task_id')
+        comment_id = self.kwargs.get('comment_id')
+        
+        # 1. Sicherstellen, dass die Task existiert (sonst 404)
+        get_object_or_404(Task, id=task_id)
+        
+        # 2. Sicherstellen, dass der Kommentar existiert UND zu dieser Task gehört (sonst 404)
+        comment = get_object_or_404(Comment, id=comment_id, task_id=task_id)
+        
+        # 3. Das gefundene Objekt an die Permission-Prüfung übergeben
+        self.check_object_permissions(self.request, comment)
+        
+        return comment

@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework import permissions
 from board_app.api.permissions import IsBoardOwnerOrMember, IsBoardOwnerOnly
 from django.shortcuts import get_object_or_404
 from task_app.models import Task
@@ -39,3 +40,10 @@ class IsBoardMemberForTaskUrl(BasePermission):
         board_permission = IsBoardOwnerOrMember()
         
         return board_permission.has_object_permission(request, view, board)
+    
+
+class IsCommentAuthorOnly(permissions.BasePermission):
+    message = "Permissions required: Only the author of this comment is allowed to delete it."
+
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user
