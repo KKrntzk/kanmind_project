@@ -33,6 +33,9 @@ class TaskCreateView(generics.CreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]

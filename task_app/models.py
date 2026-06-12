@@ -20,6 +20,7 @@ class Task(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks')
     
     
     status = models.CharField(
