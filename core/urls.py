@@ -14,6 +14,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+"""
+Central URL configuration for the Kanmind project.
+Acts as the root routing entry point, connecting the core Django admin site 
+with the specialized API endpoints of the authentication, board, and task applications.
+"""
+
 from django.contrib import admin
 from django.urls import path, include
 
