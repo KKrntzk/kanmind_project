@@ -5,6 +5,11 @@ from board_app.models import Board
 from django.contrib.auth.models import User
 
 class AssignedTaskSerializer(serializers.ModelSerializer):
+    """
+    Serializer to represent tasks assigned to or reviewed by a specific user.
+    Nests the BoardUserSerializer to output full assignee and reviewer profiles
+    instead of plain database IDs.
+    """
     assignee = BoardUserSerializer(read_only=True)
     reviewer = BoardUserSerializer(read_only=True)
 
@@ -24,6 +29,11 @@ class AssignedTaskSerializer(serializers.ModelSerializer):
         ]
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer optimized for task creation.
+    Accepts raw IDs via write-only fields (`assignee_id`, `reviewer_id`) to link relations,
+    but returns fully nested object details in the response for frontend efficiency.
+    """
     assignee_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source='assignee', write_only=True, required=False, allow_null=True
     )
@@ -44,6 +54,11 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
 
     def validate(self, attrs):
+        """
+        Perform multi-field security and consistency checks before task creation.
+        Ensures that the requesting creator, the selected assignee, and the assigned reviewer
+        are legitimate members or the owner of the target board.
+        """
         board = attrs.get('board')
         request_user = self.context['request'].user
 
@@ -70,6 +85,11 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     
 
 class TaskPatchSerializer(serializers.ModelSerializer):
+    """
+    Serializer specialized in handling partial updates (PATCH) on an existing task.
+    Supports reassigning users via raw IDs while enforcing strict safety boundaries 
+    such as preventing board-migration.
+    """
 
     board = serializers.PrimaryKeyRelatedField(
         queryset=Board.objects.all(), 
@@ -104,6 +124,11 @@ class TaskPatchSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
+        """
+        Validate partial modifications for an existing task instance.
+        Verifies that the task stays locked to its original board, and checks that updated
+        assignees or reviewers are active participants of that specific board.
+        """
         board = self.instance.board
 
         if 'board' in attrs and attrs.get('board') != board:
@@ -130,6 +155,11 @@ class TaskPatchSerializer(serializers.ModelSerializer):
         return attrs
     
 class CommentSerializer(serializers.ModelSerializer):
+    """
+    Serializer to handle both retrieving and posting task comments.
+    Guarantees that empty comments are rejected and resolves the dynamic author 
+    representation by checking for first/last name combinations.
+    """
     author = serializers.SerializerMethodField()
 
     class Meta:
@@ -140,5 +170,9 @@ class CommentSerializer(serializers.ModelSerializer):
         }
 
     def get_author(self, obj):
+        """
+        Dynamically compile the author's display name.
+        Combines first and last name if available; otherwise falls back to the system username.
+        """
         fullname = f"{obj.author.first_name} {obj.author.last_name}".strip()
         return fullname if fullname else obj.author.username

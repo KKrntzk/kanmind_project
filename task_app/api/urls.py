@@ -1,3 +1,9 @@
+"""
+URL routing configuration for the task and comment application.
+Defines endpoints for retrieving personal task filters (assigned, reviewing),
+creating and managing specific task details, and interacting with task comments.
+"""
+
 from django.urls import path
 from .views import AssignedToMeTaskListView, ReviewingTaskListView, TaskCreateView, TaskDetailView, TaskCommentListView, CommentDeleteView
 
