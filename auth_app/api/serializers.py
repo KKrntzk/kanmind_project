@@ -6,6 +6,11 @@ from django.contrib.auth import authenticate
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer to handle user registration requests.
+    Validates input data, checks for password agreement, ensures email uniqueness,
+    and returns the created user instance along with an authentication token.
+    """
 
     fullname = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
@@ -19,6 +24,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ['fullname', 'email', 'password', 'repeated_password', 'token', 'user_id']
 
     def validate(self, data):
+        """
+        Perform cross-field validation for registration.
+        Verifies that the repeated password matches the original password
+        and checks if the provided email address is already registered.
+        """
 
         if data['password'] != data['repeated_password']:
             raise ValidationError({'repeated_password':'your repeated password does not match your password'})
@@ -29,6 +39,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
+        """
+        Create a new active User instance and generate an authentication token.
+        Maps the email to the username field, assigns the fullname to first_name,
+        and attaches the freshly generated token key to the user object before returning it.
+        """
 
         user = User.objects.create_user(
             username=validated_data['email'],
@@ -44,10 +59,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    """
+    Serializer to handle and validate user authentication credentials.
+    Verifies that credentials are provided and match an active user account.
+    """
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
+        """
+        Authenticate the user credentials using email and password.
+        Validates that both fields are present, checks them against the database,
+        and ensures the account is currently active before attaching the user instance to the validated data.
+        """
         email = data.get('email')
         password = data.get('password')
 

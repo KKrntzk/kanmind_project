@@ -6,10 +6,20 @@ from .serializers import RegistrationSerializer, LoginSerializer
 from rest_framework.authtoken.models import Token
 
 class RegistrationView(APIView):
+    """
+    API endpoint that allows new users to register an account.
+    Deactivates restriction checks to accept public registration requests,
+    validates the user data, and returns user details alongside a fresh auth token.
+    """
     
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Handle POST requests for user registration.
+        Validates input data against the RegistrationSerializer. Returns a 201 response 
+        with user details and token if valid, or a 400 response with errors if invalid.
+        """
 
         serializer = RegistrationSerializer(data=request.data)
 
@@ -26,9 +36,20 @@ class RegistrationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginView(APIView):
+    """
+    API endpoint that allows existing users to authenticate.
+    Provides public access to verify credentials, checks active status,
+    and returns an existing or newly generated authentication token upon success.
+    """
     permission_classes=[AllowAny]
 
     def post(self,request):
+        """
+        Handle POST requests for user login.
+        Validates credentials via LoginSerializer. Fetches or creates an auth token for the user,
+        returning a 200 response with account data on success, or a 400 response on failure.
+        """
+
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']

@@ -1,3 +1,8 @@
+"""
+URL routing configuration for the authentication application.
+Defines the endpoints for user registration and login operations.
+"""
+
 from django.urls import path
 from .views import RegistrationView, LoginView
 
