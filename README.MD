@@ -86,7 +86,7 @@ All endpoints (except Registration and Login) require the following header:
 ---
 
 ## 📂 Project Structure (Core Apps)
-
+* `auth_app/` – Manages user onboarding, custom registration validation, and login token generation.
 * `board_app/` – Handles board creation, invitations, and team memberships.
 * `task_app/` – Core logic for tasks, assignments, status states, and the comment system.
 * `kanmind_project/` – Core configuration directory (settings, root URLs).
