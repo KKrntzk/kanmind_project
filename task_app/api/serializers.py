@@ -1,8 +1,9 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
-from task_app.models import Task, Comment
+
 from board_app.api.serializers import BoardUserSerializer
 from board_app.models import Board
-from django.contrib.auth.models import User
+from task_app.models import Comment, Task
 
 class AssignedTaskSerializer(serializers.ModelSerializer):
     """

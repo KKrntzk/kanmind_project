@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Q
-
 from rest_framework import generics, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -10,9 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from board_app.models import Board
-
 from .permissions import IsBoardOwnerOnly, IsBoardOwnerOrMember
-from .serializers import (BoardDetailSerializer, BoardPATCHSerializer, BoardSerializer, BoardUserSerializer,)
+from .serializers import (
+    BoardDetailSerializer,
+    BoardPATCHSerializer,
+    BoardSerializer,
+    BoardUserSerializer,
+)
 
 class BoardListView(generics.ListCreateAPIView):
     """
