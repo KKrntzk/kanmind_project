@@ -15,37 +15,67 @@ The API features a granular role and permission management system for boards, ta
 
 ---
 
-## 🚀 Quick Start (Local Setup)
+## Local Development Setup
 
 Follow these steps to get the development server running locally:
 
-1. **Clone the repository & enter the directory:**
-   ```bash
-   git clone [https://github.com/KKrntzk/kanmind_project.git](https://github.com/KKrntzk/kanmind_project.git)
-   cd kanmind_project
-    ```
+### 1. Clone the repository & enter the directory
+```bash
+git clone [https://github.com/KKrntzk/kanmind_project.git](https://github.com/KKrntzk/kanmind_project.git)
+cd kanmind_project
+```
 
-2.  **Activate the virtual environment:**
-    ```bash
-    # Windows (PowerShell)
-    .venv\Scripts\Activate.ps1
-    ```
+### 2. Create the virtual environment
+To avoid environment pollution and issues with specific Python versions, create the environment without pre-installed packages first:
 
-3.  **Install the dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+Windows(Powershell)
+```bash
+python -m venv .venv --without-pip
+```
+Mac/Linux
+```bash
+source .venv/bin/activate
+```
 
-4.  **Run database migrations:**
-    ```bash
-    python manage.py migrate
-    ```
+### 3. Activate the virtual environment
 
-5.  **Start the local development server:**
-    ```bash
-    python manage.py runserver
-    ```
-    The API will now be available at `http://127.0.0.1:8000/`.
+```bash
+.venv\Scripts\Activate.ps1
+```
+
+💡 Note for Windows users: If you get a script execution policy error, run Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process in your terminal first, then try activating again.
+
+### 4. Set up package manager & install dependencies
+
+Now inside the activated environment, initialize pip locally and install all required packages:
+
+```bash
+python -m ensurepip --default-pip
+python -m pip install -r requirements.txt
+```
+
+### 5. Configure environment variables
+
+The project requires a .env file for local configurations and secrets. Copy the provided template and fill in your local values:
+
+```bash
+cp .env.template .env
+```
+Open the newly created .env file and make sure a SECRET_KEY is set (e.g., SECRET_KEY=your-local-dev-key).
+
+### 6. Run database migrations
+
+```bash
+python manage.py migrate
+```
+
+### 7. Start the development server
+
+```bash
+python manage.py runserver
+```
+The server will be available locally at: http://127.0.0.1:8000/
+
 
 ---
 
