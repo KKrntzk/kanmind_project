@@ -6,6 +6,7 @@ from rest_framework import generics, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from board_app.models import Board
 from .permissions import IsBoardOwnerOnly, IsBoardOwnerOrMember
@@ -19,12 +20,10 @@ from .serializers import (
 class BoardListView(generics.ListCreateAPIView):
     """
     API endpoint to list all boards associated with the user or create a new board.
-    Globally protected by authentication settings.
     """
-
     serializer_class = BoardSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsBoardOwnerOrMember]
+    permission_classes = [IsAuthenticated, IsBoardOwnerOrMember]
 
     def get_queryset(self):
         """
@@ -48,14 +47,13 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     restrictions for destructive requests.
     """
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsBoardOwnerOrMember]
+    permission_classes = [IsAuthenticated, IsBoardOwnerOrMember]
 
     def get_queryset(self):
         """
         Scope database lookups to boards where the active user is a valid owner or member.
         """
-        user = self.request.user
-        return Board.objects.filter(Q(owner=user) | Q(members=user)).distinct()
+        return Board.objects.all()
 
     def get_serializer_class(self):
         """
@@ -72,7 +70,7 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         Overrides the default list to ensure only the explicit board owner can execute a DELETE action.
         """
         if self.request.method == 'DELETE':
-            return [IsBoardOwnerOnly()]
+            return [IsAuthenticated(), IsBoardOwnerOnly()]
         return super().get_permissions()
     
 

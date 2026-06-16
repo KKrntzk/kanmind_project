@@ -1,5 +1,7 @@
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
+from rest_framework.authentication import TokenAuthentication  
+from rest_framework.permissions import IsAuthenticated
 
 from task_app.models import Task, Comment
 
@@ -13,6 +15,8 @@ class AssignedToMeTaskListView(generics.ListAPIView):
     """
 
     serializer_class = AssignedTaskSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -28,6 +32,8 @@ class ReviewingTaskListView(generics.ListAPIView):
     """
 
     serializer_class = AssignedTaskSerializer  
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -45,6 +51,8 @@ class TaskCreateView(generics.CreateAPIView):
 
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         """
@@ -58,8 +66,8 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     API endpoint to retrieve, update (PATCH), or delete a specific task by its ID.
     Integrates custom object-level permissions to safeguard modifications and destructive actions.
     """
-
-    permission_classes = [IsTaskFieldsAllowed]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsTaskFieldsAllowed]
     queryset = Task.objects.all()
     serializer_class = TaskPatchSerializer
     lookup_field = 'id'
@@ -71,7 +79,8 @@ class TaskCommentListView(generics.ListCreateAPIView):
     Enforces board-level membership validation via URL parameters before accessing or adding comments.
     """
 
-    permission_classes = [IsBoardMemberForTaskUrl]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsBoardMemberForTaskUrl]
     serializer_class = CommentSerializer
 
     def get_queryset(self):
@@ -97,7 +106,9 @@ class CommentDeleteView(generics.DestroyAPIView):
     API endpoint to delete a specific comment from a specific task.
     Ensures data consistency and strictly limits the deletion to the original author of the comment.
     """
-
+    
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsCommentAuthorOnly]
     permission_classes = [IsCommentAuthorOnly]
     serializer_class = CommentSerializer
 

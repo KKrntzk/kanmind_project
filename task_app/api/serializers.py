@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.http import Http404
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from board_app.api.serializers import BoardUserSerializer
 from board_app.models import Board
@@ -53,6 +55,18 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['comments_count']
 
+    
+    def to_internal_value(self, data):
+ 
+        board_id = data.get('board')
+        if board_id is not None:
+            try:
+                Board.objects.get(id=board_id)
+            except Board.DoesNotExist:
+                raise Http404("this board does not exist")
+        
+        return super().to_internal_value(data)
+
 
     def validate(self, attrs):
         """
@@ -65,9 +79,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
     
         if request_user != board.owner and request_user not in board.members.all():
-            raise serializers.ValidationError(
-                {"detail": "You have to be the owner or a member to the board, to add tasks to it"}
-            )
+            raise PermissionDenied("You have to be the owner or a member to the board, to add tasks to it")
 
     
         assignee = attrs.get('assignee')

@@ -1,17 +1,10 @@
 from rest_framework import permissions
 
-
 class IsBoardOwnerOrMember(permissions.BasePermission):
     """
     Object-level permission to allow access only to the board's owner or its registered members.
-    Grants permission if the requesting user is either the creator of the board 
-    or exists within the board's associated members queryset.
     """
-
     def has_object_permission(self, request, view, obj):
-        """
-        Verify if the authenticated user is either the owner or a member of the target board object.
-        """
         return obj.owner == request.user or obj.members.filter(id=request.user.id).exists()
     
 
