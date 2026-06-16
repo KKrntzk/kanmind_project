@@ -21,7 +21,8 @@ Follow these steps to get the development server running locally:
 
 ### 1. Clone the repository & enter the directory
 ```bash
-git clone [https://github.com/KKrntzk/kanmind_project.git](https://github.com/KKrntzk/kanmind_project.git)
+git clone https://github.com/KKrntzk/kanmind_project.git
+
 cd kanmind_project
 ```
 
@@ -30,11 +31,7 @@ To avoid environment pollution and issues with specific Python versions, create 
 
 Windows(Powershell)
 ```bash
-python -m venv .venv --without-pip
-```
-Mac/Linux
-```bash
-source .venv/bin/activate
+python -m venv .venv
 ```
 
 ### 3. Activate the virtual environment
@@ -47,11 +44,11 @@ source .venv/bin/activate
 
 ### 4. Set up package manager & install dependencies
 
-Now inside the activated environment, initialize pip locally and install all required packages:
+To ensure the packages are installed correctly inside the virtual environment, use the python module path:
 
 ```bash
-python -m ensurepip --default-pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
 ### 5. Configure environment variables
