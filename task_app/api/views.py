@@ -1,12 +1,22 @@
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
-from rest_framework.authentication import TokenAuthentication  
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from task_app.models import Task, Comment
 
-from .serializers import AssignedTaskSerializer, TaskCreateSerializer, TaskPatchSerializer, CommentSerializer
-from .permissions import IsTaskFieldsAllowed, IsBoardMemberForTaskUrl, IsCommentAuthorOnly
+from .serializers import (
+    AssignedTaskSerializer,
+    TaskCreateSerializer,
+    TaskPatchSerializer,
+    CommentSerializer,
+)
+from .permissions import (
+    IsTaskFieldsAllowed,
+    IsBoardMemberForTaskUrl,
+    IsCommentAuthorOnly,
+)
+
 
 class AssignedToMeTaskListView(generics.ListAPIView):
     """
@@ -24,14 +34,14 @@ class AssignedToMeTaskListView(generics.ListAPIView):
         """
         user = self.request.user
         return Task.objects.filter(assignee=user)
-    
+
 
 class ReviewingTaskListView(generics.ListAPIView):
     """
     API endpoint that lists all tasks where the authenticated user is registered as a reviewer.
     """
 
-    serializer_class = AssignedTaskSerializer  
+    serializer_class = AssignedTaskSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -41,7 +51,7 @@ class ReviewingTaskListView(generics.ListAPIView):
         """
         user = self.request.user
         return Task.objects.filter(reviewer=user)
-    
+
 
 class TaskCreateView(generics.CreateAPIView):
     """
@@ -66,11 +76,12 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     API endpoint to retrieve, update (PATCH), or delete a specific task by its ID.
     Integrates custom object-level permissions to safeguard modifications and destructive actions.
     """
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsTaskFieldsAllowed]
     queryset = Task.objects.all()
     serializer_class = TaskPatchSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
 
 class TaskCommentListView(generics.ListCreateAPIView):
@@ -88,7 +99,7 @@ class TaskCommentListView(generics.ListCreateAPIView):
         Verify the existence of the task and return its related comments.
         Triggers a 404 response if the task does not exist.
         """
-        task_id = self.kwargs.get('task_id')
+        task_id = self.kwargs.get("task_id")
         get_object_or_404(Task, id=task_id)
         return Comment.objects.filter(task_id=task_id)
 
@@ -96,17 +107,18 @@ class TaskCommentListView(generics.ListCreateAPIView):
         """
         Save the new comment, explicitly linking it to the target task and the authenticated author.
         """
-        task_id = self.kwargs.get('task_id')
+        task_id = self.kwargs.get("task_id")
         task = get_object_or_404(Task, id=task_id)
-        
+
         serializer.save(author=self.request.user, task=task)
+
 
 class CommentDeleteView(generics.DestroyAPIView):
     """
     API endpoint to delete a specific comment from a specific task.
     Ensures data consistency and strictly limits the deletion to the original author of the comment.
     """
-    
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsCommentAuthorOnly]
     permission_classes = [IsCommentAuthorOnly]
@@ -117,12 +129,12 @@ class CommentDeleteView(generics.DestroyAPIView):
         Fetch the comment ensuring it belongs to the specified task.
         Validates the existence of both entities and triggers object-level permission checks.
         """
-        task_id = self.kwargs.get('task_id')
-        comment_id = self.kwargs.get('comment_id')
-        
+        task_id = self.kwargs.get("task_id")
+        comment_id = self.kwargs.get("comment_id")
+
         get_object_or_404(Task, id=task_id)
         comment = get_object_or_404(Comment, id=comment_id, task_id=task_id)
-        
+
         self.check_object_permissions(self.request, comment)
-        
+
         return comment

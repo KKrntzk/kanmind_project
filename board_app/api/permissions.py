@@ -1,12 +1,16 @@
 from rest_framework import permissions
 
+
 class IsBoardOwnerOrMember(permissions.BasePermission):
     """
     Object-level permission to allow access only to the board's owner or its registered members.
     """
+
     def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user or obj.members.filter(id=request.user.id).exists()
-    
+        return (
+            obj.owner == request.user or obj.members.filter(id=request.user.id).exists()
+        )
+
 
 class IsBoardOwnerOnly(permissions.BasePermission):
     """

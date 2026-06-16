@@ -7,29 +7,32 @@ from board_app.api.serializers import BoardUserSerializer
 from board_app.models import Board
 from task_app.models import Comment, Task
 
+
 class AssignedTaskSerializer(serializers.ModelSerializer):
     """
     Serializer to represent tasks assigned to or reviewed by a specific user.
     Nests the BoardUserSerializer to output full assignee and reviewer profiles
     instead of plain database IDs.
     """
+
     assignee = BoardUserSerializer(read_only=True)
     reviewer = BoardUserSerializer(read_only=True)
 
     class Meta:
         model = Task
         fields = [
-            'id',
-            'board',
-            'title',
-            'description',
-            'status',
-            'priority',
-            'assignee',
-            'reviewer',
-            'due_date',
-            'comments_count'
+            "id",
+            "board",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "assignee",
+            "reviewer",
+            "due_date",
+            "comments_count",
         ]
+
 
 class TaskCreateSerializer(serializers.ModelSerializer):
     """
@@ -37,36 +40,53 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     Accepts raw IDs via write-only fields (`assignee_id`, `reviewer_id`) to link relations,
     but returns fully nested object details in the response for frontend efficiency.
     """
+
     assignee_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='assignee', write_only=True, required=False, allow_null=True
+        queryset=User.objects.all(),
+        source="assignee",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
     reviewer_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='reviewer', write_only=True, required=False, allow_null=True
+        queryset=User.objects.all(),
+        source="reviewer",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
-    
+
     assignee = BoardUserSerializer(read_only=True)
     reviewer = BoardUserSerializer(read_only=True)
 
     class Meta:
         model = Task
         fields = [
-            'id', 'board', 'title', 'description', 'status', 'priority',
-            'assignee_id', 'reviewer_id', 'assignee', 'reviewer', 'due_date', 'comments_count'
+            "id",
+            "board",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "assignee_id",
+            "reviewer_id",
+            "assignee",
+            "reviewer",
+            "due_date",
+            "comments_count",
         ]
-        read_only_fields = ['comments_count']
+        read_only_fields = ["comments_count"]
 
-    
     def to_internal_value(self, data):
- 
-        board_id = data.get('board')
+
+        board_id = data.get("board")
         if board_id is not None:
             try:
                 Board.objects.get(id=board_id)
             except Board.DoesNotExist:
                 raise Http404("this board does not exist")
-        
-        return super().to_internal_value(data)
 
+        return super().to_internal_value(data)
 
     def validate(self, attrs):
         """
@@ -74,47 +94,53 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         Ensures that the requesting creator, the selected assignee, and the assigned reviewer
         are legitimate members or the owner of the target board.
         """
-        board = attrs.get('board')
-        request_user = self.context['request'].user
+        board = attrs.get("board")
+        request_user = self.context["request"].user
 
-    
         if request_user != board.owner and request_user not in board.members.all():
-            raise PermissionDenied("You have to be the owner or a member to the board, to add tasks to it")
+            raise PermissionDenied(
+                "You have to be the owner or a member to the board, to add tasks to it"
+            )
 
-    
-        assignee = attrs.get('assignee')
+        assignee = attrs.get("assignee")
         if assignee and assignee != board.owner and assignee not in board.members.all():
             raise serializers.ValidationError(
                 {"assignee_id": "You are not a member of the board"}
             )
 
-        reviewer = attrs.get('reviewer')
+        reviewer = attrs.get("reviewer")
         if reviewer and reviewer != board.owner and reviewer not in board.members.all():
             raise serializers.ValidationError(
                 {"reviewer_id": "your reviewer is not a member of this board"}
             )
 
         return attrs
-    
+
 
 class TaskPatchSerializer(serializers.ModelSerializer):
     """
     Serializer specialized in handling partial updates (PATCH) on an existing task.
-    Supports reassigning users via raw IDs while enforcing strict safety boundaries 
+    Supports reassigning users via raw IDs while enforcing strict safety boundaries
     such as preventing board-migration.
     """
 
     board = serializers.PrimaryKeyRelatedField(
-        queryset=Board.objects.all(), 
-        write_only=True,
-        required=False
+        queryset=Board.objects.all(), write_only=True, required=False
     )
 
     assignee_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='assignee', write_only=True, required=False, allow_null=True
+        queryset=User.objects.all(),
+        source="assignee",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
     reviewer_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='reviewer', write_only=True, required=False, allow_null=True
+        queryset=User.objects.all(),
+        source="reviewer",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
 
     assignee = BoardUserSerializer(read_only=True)
@@ -123,17 +149,17 @@ class TaskPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 
-            'board',
-            'title', 
-            'description', 
-            'status', 
-            'priority', 
-            'assignee_id', 
-            'reviewer_id', 
-            'assignee', 
-            'reviewer', 
-            'due_date'
+            "id",
+            "board",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "assignee_id",
+            "reviewer_id",
+            "assignee",
+            "reviewer",
+            "due_date",
         ]
 
     def validate(self, attrs):
@@ -144,43 +170,43 @@ class TaskPatchSerializer(serializers.ModelSerializer):
         """
         board = self.instance.board
 
-        if 'board' in attrs and attrs.get('board') != board:
-            raise serializers.ValidationError({
-                "board": "Changing the board of an existing task is not allowed."
-            })
+        if "board" in attrs and attrs.get("board") != board:
+            raise serializers.ValidationError(
+                {"board": "Changing the board of an existing task is not allowed."}
+            )
 
-        if 'assignee' in attrs:
-            assignee = attrs.get('assignee')
+        if "assignee" in attrs:
+            assignee = attrs.get("assignee")
             if assignee is not None:
                 if assignee != board.owner and assignee not in board.members.all():
-                    raise serializers.ValidationError({
-                        "assignee_id": "your assignee is not a member of this board"
-                    })
+                    raise serializers.ValidationError(
+                        {"assignee_id": "your assignee is not a member of this board"}
+                    )
 
-        if 'reviewer' in attrs:
-            reviewer = attrs.get('reviewer')
+        if "reviewer" in attrs:
+            reviewer = attrs.get("reviewer")
             if reviewer is not None:
                 if reviewer != board.owner and reviewer not in board.members.all():
-                    raise serializers.ValidationError({
-                        "reviewer_id": "your reviewer is not a member of this board"
-                    })
+                    raise serializers.ValidationError(
+                        {"reviewer_id": "your reviewer is not a member of this board"}
+                    )
 
         return attrs
-    
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     Serializer to handle both retrieving and posting task comments.
-    Guarantees that empty comments are rejected and resolves the dynamic author 
+    Guarantees that empty comments are rejected and resolves the dynamic author
     representation by checking for first/last name combinations.
     """
+
     author = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'created_at', 'author', 'content']
-        extra_kwargs = {
-            'content': {'required': True, 'allow_blank': False}
-        }
+        fields = ["id", "created_at", "author", "content"]
+        extra_kwargs = {"content": {"required": True, "allow_blank": False}}
 
     def get_author(self, obj):
         """
