@@ -14,7 +14,8 @@ class IsBoardOwnerOrMember(permissions.BasePermission):
 
 class IsBoardOwnerOnly(permissions.BasePermission):
     """
-    Strict object-level permission that restricts all operations exclusively to the owner of the board.
+    Strict object-level permission that restricts all operations exclusively
+    to the owner of the board.
     Denies access to any other user, including regular board members.
     """
 

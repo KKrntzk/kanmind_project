@@ -70,7 +70,8 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         """
         Instantiate and return the list of permissions that this view requires.
-        Overrides the default list to ensure only the explicit board owner can execute a DELETE action.
+        Overrides the default list to ensure only the explicit board owner
+        can execute a DELETE action.
         """
         if self.request.method == "DELETE":
             return [IsAuthenticated(), IsBoardOwnerOnly()]
@@ -80,7 +81,8 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
 class EmailCheckView(APIView):
     """
     API view to verify if a given email address is linked to an existing user account.
-    Primarily utilized by the frontend to safely search and validate members before adding them to a board.
+    Primarily utilized by the frontend to safely search and validate members
+    before adding them to a board.
     """
 
     def get(self, request, *args, **kwargs):

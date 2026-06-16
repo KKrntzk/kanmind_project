@@ -104,7 +104,8 @@ class BoardDetailSerializer(serializers.ModelSerializer):
 
     def get_tasks(self, obj):
         """
-        Fetch, serialize, and return all tasks linked to this board instance using AssignedTaskSerializer.
+        Fetch, serialize, and return all tasks linked to this board instance
+        using AssignedTaskSerializer.
         """
         from task_app.api.serializers import AssignedTaskSerializer
         from task_app.models import Task

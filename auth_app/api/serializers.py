@@ -82,7 +82,8 @@ class LoginSerializer(serializers.Serializer):
         """
         Authenticate the user credentials using email and password.
         Validates that both fields are present, checks them against the database,
-        and ensures the account is currently active before attaching the user instance to the validated data.
+        and ensures the account is currently active before attaching the user
+        instance to the validated data.
         """
         email = data.get("email")
         password = data.get("password")

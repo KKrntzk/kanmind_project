@@ -78,6 +78,12 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ["comments_count"]
 
     def to_internal_value(self, data):
+        """
+        Interceptors raw input data before Django REST Framework's standard field validation.
+        Explicitly validates the existence of the target board in the database using the
+        provided 'board' ID. If the board does not exist, it instantly raises an HTTP 404
+        exception, preventing DRF from defaulting to a standard 400 Bad Request validation error.
+        """
 
         board_id = data.get("board")
         if board_id is not None:
