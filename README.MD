@@ -66,7 +66,16 @@ Open the newly created .env file and make sure a SECRET_KEY is set (e.g., SECRET
 python manage.py migrate
 ```
 
-### 7. Start the development server
+### 7. Create an administrative Superuser:
+To access the Django Admin interface or manage initial data, create a superuser account by running:
+
+```bash
+python manage.py createsuperuser
+```
+
+Follow the interactive prompts in your terminal to set a username, email, and password.
+
+### 8. Start the development server
 
 ```bash
 python manage.py runserver
