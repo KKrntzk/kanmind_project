@@ -12,7 +12,7 @@ from board_app.models import Board
 from .permissions import IsBoardOwnerOnly, IsBoardOwnerOrMember
 from .serializers import (
     BoardDetailSerializer,
-    BoardPATCHSerializer,
+    BoardPatchSerializer,
     BoardSerializer,
     BoardUserSerializer,
 )
@@ -61,7 +61,7 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         and fall back to BoardDetailSerializer for standard read operations.
         """
         if self.request.method in ['PATCH', 'PUT']:
-            return BoardPATCHSerializer
+            return BoardPatchSerializer
         return BoardDetailSerializer 
     
     def get_permissions(self):

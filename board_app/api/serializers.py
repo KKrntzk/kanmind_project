@@ -40,22 +40,19 @@ class BoardSerializer(serializers.ModelSerializer):
         """
         Count and return the total number of tasks associated with this board.
         """
-        from task_app.models import Task
-        return Task.objects.filter(board=obj).count()
+        return obj.tasks.filter(board=obj).count()
 
     def get_tasks_to_do_count(self, obj):
         """
         Count and return the total number of tasks on this board currently in 'to-do' status.
         """
-        from task_app.models import Task
-        return Task.objects.filter(board=obj, status='to-do').count() 
+        return obj.tasks.filter(status='to-do').count() 
 
     def get_tasks_high_prio_count(self, obj):
         """
         Count and return the total number of tasks on this board classified as 'high' priority.
         """
-        from task_app.models import Task
-        return Task.objects.filter(board=obj, priority='high').count()
+        return obj.tasks.filter(priority='high').count()
     
     def create(self, validated_data):
         """
@@ -110,7 +107,7 @@ class BoardDetailSerializer(serializers.ModelSerializer):
         return AssignedTaskSerializer(board_tasks, many=True).data
     
 
-class BoardPATCHSerializer(serializers.ModelSerializer):
+class BoardPatchSerializer(serializers.ModelSerializer):
     """
     Serializer dedicated to handling partial updates (PATCH) on an existing board.
     Maintains a separation between write-only raw primary key lists for updating memberships
