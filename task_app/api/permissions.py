@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-from board_app.api.permissions import IsBoardOwnerOnly, IsBoardOwnerOrMember
+from board_app.api.permissions import IsBoardOwnerOrMember
 from task_app.models import Task
 
 class IsTaskFieldsAllowed(IsBoardOwnerOrMember):
