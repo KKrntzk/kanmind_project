@@ -20,12 +20,12 @@ from .serializers import (
 class BoardListView(generics.ListCreateAPIView):
     """
     API endpoint to list all boards associated with the user or create a new board.
-    Enforces token authentication and limits access to authorized owners or members.
+    Globally protected by authentication settings.
     """
 
     serializer_class = BoardSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsBoardOwnerOrMember]
+    permission_classes = [IsBoardOwnerOrMember]
 
     def get_queryset(self):
         """
@@ -49,7 +49,7 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     restrictions for destructive requests.
     """
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsBoardOwnerOrMember]
+    permission_classes = [IsBoardOwnerOrMember]
 
     def get_queryset(self):
         """
@@ -73,7 +73,7 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         Overrides the default list to ensure only the explicit board owner can execute a DELETE action.
         """
         if self.request.method == 'DELETE':
-            return [IsAuthenticated(), IsBoardOwnerOnly()]
+            return [IsBoardOwnerOnly()]
         return super().get_permissions()
     
 
@@ -82,9 +82,6 @@ class EmailCheckView(APIView):
     API view to verify if a given email address is linked to an existing user account.
     Primarily utilized by the frontend to safely search and validate members before adding them to a board.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         """
         Handle incoming GET requests to check email availability.
