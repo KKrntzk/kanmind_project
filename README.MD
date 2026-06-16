@@ -1,15 +1,14 @@
 # Kanmind Backend 🧠🚀
 
-The robust, secure backend for **Kanmind** – a collaborative Kanban board system. Built with **Python 3.14**, **Django**, and the **Django REST Framework (DRF)**. 
+The robust, secure backend for Kanmind – a collaborative Kanban board system. Built with Python 3.14, Django, and the Django REST Framework (DRF). 
 
-The API features a granular role and permission management system for boards, tasks, and an integrated comment feed, all secured via Token Authentication.
-
----
+The API features a granular role and permission management system for boards, tasks, and an integrated comment feed, all secured globally via Token Authentication.
 
 ## 🛠️ Features & Tech Stack
 
 * **Framework:** Django 5.x & Django REST Framework (DRF)
 * **Authentication:** Token-based Authentication (`rest_framework.authtoken`)
+* **Security:** Secure by Default (Global `IsAuthenticated` restriction, explicit public exceptions)
 * **Database:** SQLite (Development) / Ready for PostgreSQL (Production)
 * **Permission System:** Custom, granular permissions (e.g., Board Member Validation, Task Field Locks, Comment Author Protection)
 * **Automated Sorting:** Chronological comment feeds handled efficiently directly at the database level.
@@ -18,10 +17,12 @@ The API features a granular role and permission management system for boards, ta
 
 ## 🚀 Quick Start (Local Setup)
 
-1.  **Clone the repository & enter the directory:**
-    ```bash
-    git clone [https://github.com/KKrntzk/kanmind_project.git](https://github.com/YOUR_USERNAME/kanmind_project.git)
-    cd kanmind_project
+Follow these steps to get the development server running locally:
+
+1. **Clone the repository & enter the directory:**
+   ```bash
+   git clone [https://github.com/KKrntzk/kanmind_project.git](https://github.com/KKrntzk/kanmind_project.git)
+   cd kanmind_project
     ```
 
 2.  **Activate the virtual environment:**
