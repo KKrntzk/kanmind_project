@@ -13,8 +13,7 @@ class AssignedToMeTaskListView(generics.ListAPIView):
     API endpoint that lists all tasks assigned to the currently authenticated user.
     Uses TokenAuthentication to identify the user and filter tasks accordingly.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
     serializer_class = AssignedTaskSerializer
 
     def get_queryset(self):
@@ -29,8 +28,7 @@ class ReviewingTaskListView(generics.ListAPIView):
     """
     API endpoint that lists all tasks where the authenticated user is registered as a reviewer.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
     serializer_class = AssignedTaskSerializer  
 
     def get_queryset(self):
@@ -46,8 +44,7 @@ class TaskCreateView(generics.CreateAPIView):
     API endpoint to create a new task.
     Requires authentication and automatically binds the creating user to the task instance.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
 
@@ -63,8 +60,8 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     API endpoint to retrieve, update (PATCH), or delete a specific task by its ID.
     Integrates custom object-level permissions to safeguard modifications and destructive actions.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsTaskFieldsAllowed]
+
+    permission_classes = [IsTaskFieldsAllowed]
     queryset = Task.objects.all()
     serializer_class = TaskPatchSerializer
     lookup_field = 'id'
@@ -75,8 +72,8 @@ class TaskCommentListView(generics.ListCreateAPIView):
     API endpoint to handle both listing and creating comments for a specific task.
     Enforces board-level membership validation via URL parameters before accessing or adding comments.
     """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsBoardMemberForTaskUrl]
+
+    permission_classes = [IsBoardMemberForTaskUrl]
     serializer_class = CommentSerializer
 
     def get_queryset(self):
@@ -102,9 +99,8 @@ class CommentDeleteView(generics.DestroyAPIView):
     API endpoint to delete a specific comment from a specific task.
     Ensures data consistency and strictly limits the deletion to the original author of the comment.
     """
-    authentication_classes = [TokenAuthentication]
 
-    permission_classes = [IsAuthenticated, IsCommentAuthorOnly]
+    permission_classes = [IsCommentAuthorOnly]
     serializer_class = CommentSerializer
 
     def get_object(self):
